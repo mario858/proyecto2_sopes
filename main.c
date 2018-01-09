@@ -25,6 +25,8 @@ union semun
 #define ENTER 10
 #define UNO 49
 #define DOS 50
+#define IZQA 65
+#define DERD 68
 #define PATHSEMAFORO "/home/mario/compartido/semaforo"
 #define PATHMEMORIA "/home/mario/compartido/memoria"
 
@@ -48,12 +50,17 @@ void invasor();
 void juego();
 void barrasCampo();
 void crearMemoria();
-void modificarMemoria(int contador);
+//void modificarMemoria(int contador);
+void modificarMemoria(struct campo *nuevo);
 struct campo obtenerMemoria();
 void eliminarMemoria();
+void salida();
+void mensajeSalida();
+void imprimir(int x);
+
 //struct campo *puntCompartida=NULL;
 
-struct campo iniCampoBatalla();
+void iniCampoBatalla(struct campo *n);
 
 
 
@@ -126,7 +133,6 @@ void mensajeJugador(){
 	c=95;//caracter ascci horizontal
 	for(i=10;i<=50;i++)
 	{
-		//linea horizontal superior
 		
 		move(5,i);  //Aqui estamos moviendo el cursor para a linea - columna i.
 		printw("%c",c);  //Imprimimos un texto en la posición establecida.
@@ -326,66 +332,74 @@ struct campo
 	int invasorQE;
 	int turno;
 	int numero;
+	int numerodos;
 	int tiempo;
 	int vida_Invasor;
 	int vida_Defensor;
 	int puntos;
+	int naves;
+	int control;
+	int balasInvasor;
+	int balasDefensor;
+	char cadena[37];
 	struct cuadro tablero[57][25];
 };
 
 
 
-
-
-struct campo iniCampoBatalla(){
+void iniCampoBatalla(struct campo *n){
 	
-	struct campo n;
-	
-	n.defensorQE=0;
-	n.invasorQE=0;
-	n.turno=0;
-	n.numero=300;
-	n.tiempo=0;
-	n.vida_Invasor=5;
-	n.vida_Defensor=5;
-	n.puntos = 0;
-	
-	struct cuadro c;
-	
-	c.pos_x=0;
-	c.pos_y=0;
+	n->defensorQE=0;
+	n->naves=11;
+	n->invasorQE=0;
+	n->turno=0;
+	n->numero=25;
+	n->tiempo=0;
+	n->vida_Invasor=5;
+	n->vida_Defensor=5;
+	n->puntos = 0;
+	n->numerodos=25;
+	n->control=1;
+	n->balasInvasor=10;
+	n->balasDefensor=10;
 	/*
-	0-Vacio 
-	1-Defensor 
-	2-Invasor 
-	3-Invasor Fuerte  
-	4 - Invasor Comun  
-	5 - Bala Defensa  
-	6- Bala Alien 
+	n->tablero[25][1].tipo=1;
+	n->tablero[25][1].contenido='0';
 	*/
-	c.tipo=0;
-	c.posicion=0;
-	c.contenido=' ';
 	
-	int x,y;
-	
+	/*
 	
 	for (x = 0; x< 57; x++){
  		for (y = 0; y< 25; y++){
-			n.tablero[x][y] = c;			
+			
+			n->tablero[x][y].pos_x=0;
+			c.pos_y=0;
+			
+			0-Vacio 
+			1-Defensor 
+			2-Invasor 
+			3-Invasor Fuerte  
+			4 - Invasor Comun  
+			5 - Bala Defensa  
+			6- Bala Alien 
+			
+			c.tipo=0;
+			c.posicion=0;
+			c.contenido=' ';
+			
 		}
 	}
 	
 	//Invasor
 	for (x = 25; x<34; x++){
-		n.tablero[x][1].tipo=1;
-		n.tablero[x][1].contenido='0';
+		n->tablero[x][1].tipo=1;
+		n->tablero[x][1].contenido='0';
 	}
 	
 	//Defensor
 	for (x = 25; x<34; x++){
-		n.tablero[x][22].tipo=1;
-		n.tablero[x][22].contenido='^';
+		n->tablero[x][22].tipo=1;
+		n->tablero[x][22].contenido='^';
 	}
 	
 	
@@ -395,52 +409,52 @@ struct campo iniCampoBatalla(){
 		
 		
 		if(x==11||x==18||x==33||x==40){
-			n.tablero[x][y].tipo=4;
-			n.tablero[x][y].contenido='\\';
+			n->tablero[x][y].tipo=4;
+			n->tablero[x][y].contenido='\\';
 		}
 		if(x==12||x==14||x==19||x==21||x==34||x==36||x==41||x==43){
-			n.tablero[x][y].tipo=4;
-			n.tablero[x][y].contenido='-';
+			n->tablero[x][y].tipo=4;
+			n->tablero[x][y].contenido='-';
 		}
 		
 		
 		if(x==13||x==20||x==35||x==42){
-			n.tablero[x][y].tipo=4;
-			n.tablero[x][y].contenido='.';
+			n->tablero[x][y].tipo=4;
+			n->tablero[x][y].contenido='.';
 		}
 		
 		if(x==15||x==22||x==37||x==44){
-			n.tablero[x][y].tipo=4;
-			n.tablero[x][y].contenido='/';
+			n->tablero[x][y].tipo=4;
+			n->tablero[x][y].contenido='/';
 		}
 		
 		if(x==24){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='(';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='(';
 		}
 		if(x==25){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='/';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='/';
 		}
 		if(x==26){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='-';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='-';
 		}
 		if(x==27){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='1';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='1';
 		}
 		if(x==28){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='-';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='-';
 		}
 		if(x==29){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='\\';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='\\';
 		}
 		if(x==30){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido=')';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido=')';
 		}
 		
 		
@@ -454,52 +468,52 @@ struct campo iniCampoBatalla(){
 		
 		
 		if(x==11||x==26||x==33||x==40){
-			n.tablero[x][y].tipo=4;
-			n.tablero[x][y].contenido='\\';
+			n->tablero[x][y].tipo=4;
+			n->tablero[x][y].contenido='\\';
 		}
 		if(x==12||x==14||x==27||x==29||x==34||x==36||x==41||x==43){
-			n.tablero[x][y].tipo=4;
-			n.tablero[x][y].contenido='-';
+			n->tablero[x][y].tipo=4;
+			n->tablero[x][y].contenido='-';
 		}
 		
 		
 		if(x==13||x==28||x==35||x==42){
-			n.tablero[x][y].tipo=4;
-			n.tablero[x][y].contenido='.';
+			n->tablero[x][y].tipo=4;
+			n->tablero[x][y].contenido='.';
 		}
 		
 		if(x==15||x==30||x==37||x==44){
-			n.tablero[x][y].tipo=4;
-			n.tablero[x][y].contenido='/';
+			n->tablero[x][y].tipo=4;
+			n->tablero[x][y].contenido='/';
 		}
 		
 		if(x==18){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='(';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='(';
 		}
 		if(x==19){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='/';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='/';
 		}
 		if(x==20){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='-';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='-';
 		}
 		if(x==21){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='2';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='2';
 		}
 		if(x==22){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='-';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='-';
 		}
 		if(x==23){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='\\';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='\\';
 		}
 		if(x==24){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido=')';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido=')';
 		}
 		
 		
@@ -510,52 +524,52 @@ struct campo iniCampoBatalla(){
 		
 		
 		if(x==11||x==18||x==26||x==40){
-			n.tablero[x][y].tipo=4;
-			n.tablero[x][y].contenido='\\';
+			n->tablero[x][y].tipo=4;
+			n->tablero[x][y].contenido='\\';
 		}
 		if(x==12||x==14||x==19||x==21||x==27||x==29||x==41||x==43){
-			n.tablero[x][y].tipo=4;
-			n.tablero[x][y].contenido='-';
+			n->tablero[x][y].tipo=4;
+			n->tablero[x][y].contenido='-';
 		}
 		
 		
 		if(x==13||x==20||x==28||x==42){
-			n.tablero[x][y].tipo=4;
-			n.tablero[x][y].contenido='.';
+			n->tablero[x][y].tipo=4;
+			n->tablero[x][y].contenido='.';
 		}
 		
 		if(x==15||x==22||x==30||x==44){
-			n.tablero[x][y].tipo=4;
-			n.tablero[x][y].contenido='/';
+			n->tablero[x][y].tipo=4;
+			n->tablero[x][y].contenido='/';
 		}
 		
 		if(x==32){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='(';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='(';
 		}
 		if(x==33){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='/';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='/';
 		}
 		if(x==34){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='-';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='-';
 		}
 		if(x==35){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='3';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='3';
 		}
 		if(x==36){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='-';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='-';
 		}
 		if(x==37){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='\\';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='\\';
 		}
 		if(x==38){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido=')';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido=')';
 		}
 		
 		
@@ -566,117 +580,90 @@ struct campo iniCampoBatalla(){
 		
 		
 		if(x==26||x==18||x==33||x==40){
-			n.tablero[x][y].tipo=4;
-			n.tablero[x][y].contenido='\\';
+			n->tablero[x][y].tipo=4;
+			n->tablero[x][y].contenido='\\';
 		}
 		if(x==27||x==29||x==19||x==21||x==34||x==36||x==41||x==43){
-			n.tablero[x][y].tipo=4;
-			n.tablero[x][y].contenido='-';
+			n->tablero[x][y].tipo=4;
+			n->tablero[x][y].contenido='-';
 		}
 		
 		
 		if(x==28||x==20||x==35||x==42){
-			n.tablero[x][y].tipo=4;
-			n.tablero[x][y].contenido='.';
+			n->tablero[x][y].tipo=4;
+			n->tablero[x][y].contenido='.';
 		}
 		
 		if(x==30||x==22||x==37||x==44){
-			n.tablero[x][y].tipo=4;
-			n.tablero[x][y].contenido='/';
+			n->tablero[x][y].tipo=4;
+			n->tablero[x][y].contenido='/';
 		}
 		
 		if(x==11){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='(';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='(';
 		}
 		if(x==12){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='/';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='/';
 		}
 		if(x==13){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='-';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='-';
 		}
 		if(x==14){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='4';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='4';
 		}
 		if(x==15){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='-';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='-';
 		}
 		if(x==16){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido='\\';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido='\\';
 		}
 		if(x==17){
-			n.tablero[x][y].tipo=3;
-			n.tablero[x][y].contenido=')';
+			n->tablero[x][y].tipo=3;
+			n->tablero[x][y].contenido=')';
 		}
 		
 		
 	}
 	
 	
-	
-	return n;
+	*/
 }
 
 
-void juego(int jugador){
 
+
+
+
+void juego(int jugador){
 	int key_int; 
-	int x = 0, y = 1, max_x= 0, next_x = 0, direction = 1, max_y =0;
-	//int comp;
+	int x =11, y = 1, max_x= 0, next_x = 0, direction = 1, max_y =0;
 	int tiempolocal=0;
-	
-	
 	
 	//CREAR MEMORIA
 		key_t clavecompartida;
 		int mem = 0;
-
-		struct campo *mcompartida = NULL;
-
+		struct campo *puntCompartida = NULL;
 		clavecompartida = ftok (PATHMEMORIA,33);
-
 		mem = shmget (clavecompartida,sizeof(struct campo *),0777 | IPC_CREAT);
-		mcompartida = (struct campo*) shmat (mem,NULL,0);
-		
-		mvprintw (6, 0 , "Creando el segmento %d de memoria compartida\n\n",mem);
-		obtenerMemoria(); 
+		puntCompartida = (struct campo*) shmat (mem,NULL,0);
+		//puntCompartida->numero=0;
 	
+	//Inicializar memoria
+		iniCampoBatalla(puntCompartida);
+		
 	
 	if (jugador == 1)  { //Defensor
-		
-		/*
-		
-		//CREAR MEMORIA
-		key_t clavecompartida;
-		int mem = 0;
-
-		struct campo *mcompartida = NULL;
-
-		clavecompartida = ftok (PATHMEMORIA,33);
-
-		mem = shmget (clavecompartida,sizeof(struct campo *),0777 | IPC_CREAT);
-		mcompartida = (struct campo*) shmat (mem,NULL,0);
-		
-		mvprintw (6, 0 , "Creando el segmento %d de memoria compartida\n\n",mem);
-		
-		*/
-		
-		while(1) {	 
+		int pos;
+		while(puntCompartida->control) {	 
 			
-			cbreak();
-  			nodelay(stdscr,1);
-   			keypad(stdscr,1);
-   			srand(time(NULL));
-			key_int = getch();
-			struct campo *puntCompartida = (struct campo*) shmat (mem,NULL,0);
-			
+			//IMPLEMENTANOD DECKER
 			puntCompartida->defensorQE = 1;
-			
 			while(puntCompartida->invasorQE ==1){
 				if(puntCompartida->turno == 2){
 					puntCompartida->defensorQE=0;
@@ -687,29 +674,107 @@ void juego(int jugador){
 			
 			}
 			
-			//REGION CRITICA
-			puntCompartida = (struct campo*) shmat (mem,NULL,0);
 			
+			cbreak();
+  			nodelay(stdscr,1);
+   			keypad(stdscr,1);
+   			srand(time(NULL));
+			key_int = getch();
 			getmaxyx(stdscr, max_y, max_x);
 			clear();
 			barrasCampo();
-						
-			mvprintw(y, x, "%d", puntCompartida->numero);
 			
-			refresh();
-			usleep(300000);
-			next_x = x + direction;
-			if (next_x >= max_x || next_x < 0) {
+			mvprintw(18, x, "Defensor - %d", puntCompartida->numero);
+			
+			imprimir(puntCompartida->naves);
+			
+			//Defensor
+			mvprintw(1, puntCompartida->numero , "0000000");
+			
+			//Invasor
+			mvprintw(22, puntCompartida->numerodos , "^^^^^^^");
+			
+			
+			
+			//CONTROL DEL CRONOMETRO - SOLO DEFENSOR
+			if(tiempolocal!=1){
+				tiempolocal=tiempolocal+1;
+			}else{
+				tiempolocal=0;
+				tiempoJuego=tiempoJuego+1;
+				puntCompartida->tiempo=tiempoJuego;
+			}
+			//FIN CRONOMETRO
+			
+			//Imprimir tiempo
+			attron(A_BOLD);		
+			mvprintw(11, 63 , "TIEMPO");
+			mvprintw(14, 69 , "%d", puntCompartida->tiempo);
+			attroff(A_BOLD);
+			
+			
+			//Imprimir vida 
+			attron(A_BOLD);		
+			mvprintw(2, 63 , "DEFENSOR");
+			mvprintw(4, 63 , "Vida: %d", puntCompartida->vida_Defensor);
+			mvprintw(5, 63 , "Balas: %d", puntCompartida->balasDefensor);
+			attroff(A_BOLD);
+			
+			attron(A_BOLD);		
+			mvprintw(19, 63 , "INVASOR");
+			mvprintw(21, 63 , "Vida: %d", puntCompartida->vida_Invasor);
+			mvprintw(22, 63 , "Puntos: %d", puntCompartida->puntos);
+			
+			
+			next_x = puntCompartida->naves + direction;
+			if (next_x >= 26 || next_x < 0) {
 				direction*= -1;
 			} else {
-				x+= direction;
+				puntCompartida->naves+= direction;
+				modificarMemoria(puntCompartida);
 			}
 			
+
 			if(key_int == UNO){
-				break;
+				int next=0;
+				int dir=1;
+				
+				next = puntCompartida->numero - dir;
+				if (next <= 0) {
+					
+				} else {
+					puntCompartida->numero = puntCompartida->numero - dir;
+					modificarMemoria(puntCompartida);
+				}
+				
+				
+			}else if(key_int == DOS){
+				
+				int next=0;
+				int dir=1;
+				
+				next = puntCompartida->numero + dir;
+				if (next >= 50) {
+					
+				} else {
+					puntCompartida->numero = puntCompartida->numero + dir;
+					modificarMemoria(puntCompartida);
+				}
+			
+			}else if(key_int == ENTER){
+				if(puntCompartida->balasDefensor>0){
+					puntCompartida->balasDefensor= puntCompartida->balasDefensor-1;
+				}
+			
+				
+			}else if(key_int == ESCAPE){
+				puntCompartida->control=0;
 			}
 			
-			puntCompartida->numero=puntCompartida->numero+20;
+			
+			refresh();
+			usleep(250000);
+			
 			
 			//TERMINA REGION CRITICA
 			
@@ -717,33 +782,18 @@ void juego(int jugador){
 			puntCompartida->defensorQE = 0;
 			
 			//Lo que no es critico... que creo que no hay nada...
-				
+			
 		}
+		salida(puntCompartida);
+	}
+	
+	else{ //Invasor
 		
-		//ELIMINAR MEMORIA
-		shmctl (mem, IPC_RMID, (struct shmid_ds *)NULL);
-		unlink (PATHMEMORIA);
-		
-		
-		
-	}else if (jugador == 2)  { //Invasor
-		
-		int conteo=0;
-		
-		while(1) {
+		while(puntCompartida->control) {	 
 			
 			
-			
-			cbreak();
-  			nodelay(stdscr,1);
-   			keypad(stdscr,1);
-   			srand(time(NULL));
-			key_int = getch();
-			
-			struct campo *puntCompartida = (struct campo*) shmat (mem,NULL,0);
 			
 			//IMPLEMENTANOD DECKER
-			
 			puntCompartida->invasorQE = 1;
 			while(puntCompartida->defensorQE ==1){
 				if(puntCompartida->turno == 1){
@@ -757,48 +807,305 @@ void juego(int jugador){
 			
 			
 			
-			//REGION CRITICA
-			puntCompartida = (struct campo*) shmat (mem,NULL,0);
 			
+			//REGION CRITICA
+			cbreak();
+  			nodelay(stdscr,1);
+   			keypad(stdscr,1);
+   			srand(time(NULL));
+			key_int = getch();
 			getmaxyx(stdscr, max_y, max_x);
 			clear();
 			barrasCampo();
-						
-			mvprintw(19, x, "%d", puntCompartida->numero);
+			mvprintw(18, x, "Invasor - %d", puntCompartida->numerodos);
 			
-			refresh();
-			usleep(300000);
-			next_x = x + direction;
-			if (next_x >= max_x || next_x < 0) {
+			imprimir(puntCompartida->naves);
+			
+			//Defensor
+			mvprintw(1, puntCompartida->numero , "0000000");
+			
+			//Invasor
+			mvprintw(22, puntCompartida->numerodos , "^^^^^^^");
+			
+			
+			//Imprimir tiempo
+			attron(A_BOLD);		
+			mvprintw(11, 63 , "TIEMPO");
+			mvprintw(14, 69 , "%d", puntCompartida->tiempo);
+			attroff(A_BOLD);
+			
+			
+			//Imprimir vida 
+			attron(A_BOLD);		
+			mvprintw(2, 63 , "DEFENSOR");
+			mvprintw(4, 63 , "Vida: %d", puntCompartida->vida_Defensor);
+			mvprintw(5, 63 , "Balas: %d", puntCompartida->balasDefensor);
+			attroff(A_BOLD);
+			
+			attron(A_BOLD);		
+			mvprintw(19, 63 , "INVASOR");
+			mvprintw(21, 63 , "Vida: %d", puntCompartida->vida_Invasor);
+			mvprintw(22, 63 , "Puntos: %d", puntCompartida->puntos);
+			
+			
+			
+			
+			next_x = puntCompartida->naves + direction;
+			if (next_x >= 26 || next_x < 0) {
 				direction*= -1;
 			} else {
-				x+= direction;
+				puntCompartida->naves+= direction;
+				modificarMemoria(puntCompartida);
 			}
+			
+			
 			
 			if(key_int == UNO){
-				break;
+				int next=0;
+				int dir=1;
+				
+				next = puntCompartida->numerodos - dir;
+				if (next <= 0) {
+					
+				} else {
+					puntCompartida->numerodos = puntCompartida->numerodos - dir;
+					modificarMemoria(puntCompartida);
+				}
+				
+				
+			}else if(key_int == DOS){
+				
+				int next=0;
+				int dir=1;
+				
+				next = puntCompartida->numerodos + dir;
+				if (next >= 50) {
+					
+				} else {
+					puntCompartida->numerodos = puntCompartida->numerodos + dir;
+					modificarMemoria(puntCompartida);
+				}
+			
+			}else if(key_int == ESCAPE){
+				puntCompartida->control=0;
 			}
 			
 			
 			
-			conteo+=1;
-			modificarMemoria(conteo);
+			refresh();
+			usleep(250000);
+			//puntCompartida->numero+=2;
+			//modificarMemoria(puntCompartida);
+			
+			
 			
 			//TERMINA REGION CRITICA
 			
 			puntCompartida->turno = 1;
 			puntCompartida->invasorQE = 0;
 			
-			//Lo que no es critico... que creo que no hay nada...
+			//Lo que no es critico... 	
 			
-		}		
+			
+		}
+		salida(puntCompartida);
 	}
+	
+	
 	
 }
 
 
 
 
+void salida(struct campo *n){
+	int key_int;
+	while(1){
+		key_int = getch();
+		
+		
+		clear();
+		
+		centrar_texto_x(3,"RESULTADOS FINALES");
+		
+		move(4,24);
+		printw("Tiempo: %d",n->tiempo);
+	
+		//JUGADOR 1
+		int i;
+		char c;
+		c=95;//caracter ascci horizontal
+		for(i=10;i<=50;i++)
+		{
+
+			move(5,i);  //Aqui estamos moviendo el cursor para a linea - columna i.
+			printw("%c",c);  //Imprimimos un texto en la posición establecida.
+			//linea horizontal inferior
+			move(10,i);  //Aqui estamos moviendo el cursor para a linea - columna i.
+			printw("%c",c);  //Imprimimos un  texto en la posición establecida.
+		}
+
+		c=124 ; //caracter ascci vertical
+		for(i=6;i<=10;i++)
+		{
+			//linea vertical izquierda
+			move(i,9);
+			printw("%c",c);
+			//linea vertical derecha
+			move(i,51);
+			printw("%c",c);
+		 }
+
+		move(6,13);
+		printw("Defensor");
+
+		move(8,24);
+		printw("Score: 0");
+		move(9,24);
+		printw("Vidas: 5");
+
+
+		//JUGADOR 2
+
+		c=95;//caracter ascci horizontal
+		for(i=10;i<=50;i++)
+		{
+			//linea horizontal superior
+
+			move(12,i);  //Aqui estamos moviendo el cursor para a linea - columna i.
+			printw("%c",c);  //Imprimimos un texto en la posición establecida.
+			//linea horizontal inferior
+			move(17,i);  //Aqui estamos moviendo el cursor para a linea - columna i.
+			printw("%c",c);  //Imprimimos un  texto en la posición establecida.
+		}
+
+		c=124 ; //caracter ascci vertical
+		for(i=13;i<=17;i++)
+		{
+			//linea vertical izquierda
+			move(i,9);
+			printw("%c",c);
+			//linea vertical derecha
+			move(i,51);
+			printw("%c",c);
+		 }
+
+		move(13,13);
+		printw("Invasor");
+
+		move(15,24);
+		printw("Vidas: 5");
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		mensajeSalida(n);
+		
+		if ( key_int == ENTER ){
+			break;
+		}
+		
+	}
+	//Borramos la memoria
+		key_t clavecompartida;
+		int mem = 0;
+		struct campo *mcompartida = NULL;
+		clavecompartida = ftok (PATHMEMORIA,33);
+		mem = shmget (clavecompartida,sizeof(struct campo *),0777 | IPC_CREAT);
+		shmctl (mem, IPC_RMID, (struct shmid_ds *)NULL);
+		unlink (PATHMEMORIA);
+		
+	
+	clear();
+	main();
+}
+
+
+
+void imprimir(int x){
+	mvprintw(5, x, "\\-.-/ \\-.-/ (/-1-\\) \\-.-/ \\-.-/");
+	mvprintw(8, x, "\\-.-/ (/-2-\\) \\-.-/  \\-.-/ \\-.-/");
+	mvprintw(11, x, "\\-.-/ \\-.-/ \\-.-/ (/-3-\\) \\-.-/");
+	mvprintw(14, x, "\\-.-/ \\-.-/  \\-.-/ \\-.-/ (/-4-\\)");
+}
+
+void mensajeSalida(){
+	
+	
+	
+	centrar_texto_x(3,"RESULTADOS FINALES");
+	
+	//JUGADOR 1
+	int i;
+	char c;
+	c=95;//caracter ascci horizontal
+	for(i=10;i<=50;i++)
+	{
+		
+		move(5,i);  //Aqui estamos moviendo el cursor para a linea - columna i.
+		printw("%c",c);  //Imprimimos un texto en la posición establecida.
+		//linea horizontal inferior
+		move(10,i);  //Aqui estamos moviendo el cursor para a linea - columna i.
+		printw("%c",c);  //Imprimimos un  texto en la posición establecida.
+	}
+	
+	c=124 ; //caracter ascci vertical
+	for(i=6;i<=10;i++)
+	{
+		//linea vertical izquierda
+		move(i,9);
+		printw("%c",c);
+		//linea vertical derecha
+		move(i,51);
+		printw("%c",c);
+	 }
+		
+	move(6,13);
+	printw("Defensor");
+	
+	move(8,24);
+	printw("Score: 0");
+	move(9,24);
+	printw("Vidas: 5");
+	
+	
+	//JUGADOR 2
+	
+	c=95;//caracter ascci horizontal
+	for(i=10;i<=50;i++)
+	{
+		//linea horizontal superior
+		
+		move(12,i);  //Aqui estamos moviendo el cursor para a linea - columna i.
+		printw("%c",c);  //Imprimimos un texto en la posición establecida.
+		//linea horizontal inferior
+		move(17,i);  //Aqui estamos moviendo el cursor para a linea - columna i.
+		printw("%c",c);  //Imprimimos un  texto en la posición establecida.
+	}
+	
+	c=124 ; //caracter ascci vertical
+	for(i=13;i<=17;i++)
+	{
+		//linea vertical izquierda
+		move(i,9);
+		printw("%c",c);
+		//linea vertical derecha
+		move(i,51);
+		printw("%c",c);
+	 }
+		
+	move(13,13);
+	printw("Invasor");
+	
+	move(15,24);
+	printw("Vidas: 5");
+	
+}
 
 
 
@@ -1089,7 +1396,7 @@ void juego(int jugador){
 
 //MEMORIA COMPARTIDA
 
-
+/*
 void modificarMemoria(int contador){
 
 	key_t clavecompartida;
@@ -1109,13 +1416,38 @@ void modificarMemoria(int contador){
 	mcompartida->numero = contador;
 	refresh();
 
+}*/
+
+
+void modificarMemoria(struct campo *nuevo){
+
+	key_t clavecompartida;
+	int mem = 0;
+	
+	struct campo *mcompartida = NULL;
+
+	clavecompartida = ftok (PATHMEMORIA,33);
+	
+	mem =  shmget (clavecompartida,sizeof(struct campo *),0777);
+	mcompartida = (struct campo*) shmat (mem,NULL,0);
+	
+	//clear();
+	//mvprintw (8, 0 , "Trabjando el segmento %d de memoria compartida",mem);
+		
+	//mvprintw (9, 0 , "%d",mcompartida->numero);
+	mcompartida = nuevo;
+	refresh();
+
 }
+
+
+
 
 struct campo obtenerMemoria(){
 	
 	//Inicializar el struct
 	
-	ini = iniCampoBatalla();
+	//ini = iniCampoBatalla();
 	
 	key_t clavecompartida;
 	int mem = 0;
@@ -1132,7 +1464,14 @@ struct campo obtenerMemoria(){
 	struct campo n = *mcompartida;
 	
 	//Inicializar struct principal.
-	mcompartida = &ini;
+	
+	struct campo *nuevo; 
+	nuevo = malloc(sizeof(struct campo));
+	//nuevo->numero = ini.numero;
+		
+	
+	
+	//mcompartida = &ini;
 	
 	//puntCompartida = mcompartida;
 	return n;
@@ -1309,5 +1648,4 @@ void dibuja_barra(int pos_y)
 		move (pos_y,a); printw(" ");
 	}
 }
-
 
